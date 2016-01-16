@@ -1,33 +1,46 @@
 #!/usr/bin/env node
 
 /**
- * Module dependencies.
+ * Read config if it exists, or fallback on
+ * real env variables.
  */
 
-var app = require('../app');
-var debug = require('debug')('FB-ai-api:server');
-var http = require('http');
+require('dotenv').config({
+  path: 'env',
+  silent: true
+});
 
-/**
- * Get port from environment and store in Express.
- */
+var debug = require('debug')('furifuri-dashboard:server');
+var connection = require('../connection');
 
+// Get port from environment
 var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
 
-/**
- * Create HTTP server.
- */
+connection
+.onConnect
+.then(function(){
+  console.log('Connected to database.');
 
-var server = http.createServer(app);
+  var app = require('../app');
+  var http = require('http');
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+  // store port in Express.
+  app.set('port', port);
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+  // Create HTTP server.
+  var server = http.createServer(app);
+
+  // Listen on provided port, on all network interfaces.
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening.bind(null, server));
+
+  console.log('App running in mode:', app.get('env'));
+  console.log('App now listening on port:', port);
+})
+.catch(function(error){
+  console.log('Error connection to db:', error);
+});
 
 /**
  * Normalize a port into a number, string, or false.
@@ -81,7 +94,7 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
+function onListening(server) {
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
