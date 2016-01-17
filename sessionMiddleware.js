@@ -6,7 +6,7 @@ var User = models.User;
 function isAuthenticated(req, res, next){
   // no authentication for these paths
   if(
-    ['/startlogin']
+    ['/session/start']
     .some(function(route){
       return req.url.indexOf(route) != -1;
     })

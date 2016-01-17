@@ -10,10 +10,10 @@ var sessionMiddleware = require('../sessionMiddleware');
 router.use(sessionMiddleware.isAuthenticated);
 
 // send to fb to start login process
-router.get('/startlogin', fb.redirectLoginForm);
+router.get('/session/start', fb.redirectLoginForm);
 
 // receive callback from facebook
-router.get('/completelogin',
+router.get('/session/refresh',
   fb.authenticate,
   sessionMiddleware.loadOrSaveUser,
   function(req, res, next){
@@ -35,6 +35,7 @@ router.all('/', function(req, res, next){
   });
 });
 
+// return logged in user details
 router.all('/user', function(req, res, next){
   next({
     status: 200,
@@ -44,7 +45,7 @@ router.all('/user', function(req, res, next){
 });
 
 // destroy session on the server
-router.all('/logout', function(req, res, next){
+router.all('/session/logout', function(req, res, next){
   req.session = null;
 
   next({
