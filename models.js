@@ -14,14 +14,14 @@ var Post = bookshelf.Model.extend({
     return this.belongs(User);
   },
   contents: function(){
-    return this.hasMany(Content);
+    return this.belongsToMany(Content);
   }
 });
 
 var Content = bookshelf.Model.extend({
   tableName: 'contents',
   post: function(){
-    return this.belongsTo(Post);
+    return this.belongsToMany(Post);
   }
 });
 
