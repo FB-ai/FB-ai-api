@@ -2,9 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 var fb = require('../fb');
+var sessionMiddleware = require('../sessionMiddleware');
 var models = require('../models');
 var User = models.User;
-var sessionMiddleware = require('../sessionMiddleware');
+var Post = models.Post;
+var Content = models.Content;
 
 // use authentication on this router
 router.use(sessionMiddleware.isAuthenticated);
@@ -52,6 +54,46 @@ router.all('/session/logout', function(req, res, next){
     status: 200,
     success: true
   });
+});
+
+// saving the post
+router.post('/post', function(req, res, next){
+  // console.log('received post request', req.body);
+
+  Post
+  .forge({
+    user_id: req.session.user.id
+  })
+  .save()
+  .then(function(post){
+    // console.log('created post:', post.serialize());
+    // console.log('trying to create content:', {
+    //   post_id: post.get('id'),
+    //   title: req.body.title,
+    //   text_body: req.body.text_body,
+    //   url: req.body.url
+    // });
+
+    Content
+    .forge({
+      post_id: post.get('id'),
+      title: req.body.title,
+      text_body: req.body.text_body,
+      url: req.body.url
+    })
+    .save()
+    .then(function(content){
+      // console.log('created post content', content.serialize());
+      var postWithConent = post.serialize();
+      postWithConent.content = content.serialize()
+
+      res
+      .status(201)
+      .json(postWithConent);
+    })
+    .catch(next);
+  })
+  .catch(next);
 });
 
 module.exports = router;
