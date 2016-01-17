@@ -4,24 +4,24 @@ var bookshelf = require('bookshelf')(connection);
 var User = bookshelf.Model.extend({
   tableName: 'users',
   posts: function(){
-    this.belongsToMany(Post);
+    return this.hasMany(Post);
   }
 });
 
 var Post = bookshelf.Model.extend({
   tableName: 'posts',
   user: function(){
-    this.belongsToMany(User);
+    return this.belongs(User);
   },
   contents: function(){
-    this.hasMany(Content);
+    return this.hasMany(Content);
   }
 });
 
 var Content = bookshelf.Model.extend({
   tableName: 'contents',
   post: function(){
-    this.belongsTo(Post);
+    return this.belongsTo(Post);
   }
 });
 
