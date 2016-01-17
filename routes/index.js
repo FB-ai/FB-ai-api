@@ -96,4 +96,23 @@ router.post('/post', function(req, res, next){
   .catch(next);
 });
 
+// list all the posts with the content bodies for the user
+router.all('/user/posts', function(req, res, next){
+  Post
+  .where({
+    user_id: req.session.user.id
+  })
+  .fetchAll({
+    withRelated: ['contents']
+  })
+  .then(function(posts){
+    // console.log('listing all posts:', posts);
+
+    res
+    .status(200)
+    .json(posts.serialize());
+  })
+  .catch();
+});
+
 module.exports = router;
